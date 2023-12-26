@@ -9,6 +9,8 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -19,13 +21,21 @@ jobs:
 
       - name: Run tejolote 
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ env.TAG }}
         run: |
           tejolote attest --artifacts github://kubernetes-sigs/karpenter/"${TAG}" github://kubernetes-sigs/karpenter/"${{ github.run_id }}" --output karpenter.intoto.json --sign
+
+      - uses: openvex/generate-vex@31b415924ea0d72ed5f2640f1dee59dea6c2770b
+        name: Run vexctl
+        with:
+          product: pkg:generic/karpenter@${{ env.TAG }}
+          file: karpenter.vex.json
 
       - name: Create Github Release
         uses: marvinpinto/action-automatic-releases@919008cf3f741b179569b7a6fb4d8860689ab7f0 # v1.2.1
         with:
-          files: karpenter.intoto.json
+          files: |
+            karpenter.intoto.json
+            karpenter.vex.json
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
