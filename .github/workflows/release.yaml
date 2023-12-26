@@ -20,10 +20,8 @@ jobs:
         uses: kubernetes-sigs/release-actions/setup-tejolote@dd08496c83441d6477114cc0555b96d404dacff7 # v0.1.2
 
       - name: Run tejolote 
-        env:
-          TAG: ${{ env.TAG }}
         run: |
-          tejolote attest --artifacts github://sreeram-venkitesh/karpenter/"${TAG}" github://sreeram-venkitesh/karpenter/"${{ github.run_id }}" --output karpenter.intoto.json --sign
+          tejolote attest --artifacts github://sreeram-venkitesh/karpenter/${{ env.TAG }} github://sreeram-venkitesh/karpenter/"${{ github.run_id }}" --output karpenter.intoto.json --sign
 
       - uses: openvex/generate-vex@31b415924ea0d72ed5f2640f1dee59dea6c2770b
         name: Run vexctl
